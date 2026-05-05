@@ -4,88 +4,95 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SecretService Premium - Zokhidjon Zokirov</title>
+    <!-- Керакли кутубхоналар -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
     <style>
         :root { --primary: #4e54c8; --accent: #00f2fe; --dark: #0f0c29; --glass: rgba(255, 255, 255, 0.1); --gold: #ffd700; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--dark); color: white; margin: 0; padding: 0; }
-        nav { background: rgba(0,0,0,0.8); padding: 15px; display: flex; justify-content: center; gap: 15px; position: sticky; top: 0; backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid var(--accent); }
-        nav a { color: white; text-decoration: none; font-weight: bold; cursor: pointer; padding: 8px 15px; border-radius: 8px; transition: 0.3s; font-size: 14px; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--dark); color: white; margin: 0; padding: 0; overflow-x: hidden; }
+        nav { background: rgba(0,0,0,0.8); padding: 15px; display: flex; justify-content: center; gap: 10px; position: sticky; top: 0; backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid var(--accent); flex-wrap: wrap; }
+        nav a { color: white; text-decoration: none; font-weight: bold; cursor: pointer; padding: 8px 12px; border-radius: 8px; transition: 0.3s; font-size: 13px; text-transform: uppercase; }
         nav a.active { background: var(--primary); box-shadow: 0 0 15px var(--primary); }
-        .section { display: none; padding: 30px 15px; max-width: 800px; margin: auto; animation: fadeIn 0.5s; }
+        .section { display: none; padding: 20px; max-width: 800px; margin: auto; animation: fadeIn 0.5s; }
         .section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .card { background: var(--glass); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: none; background: rgba(255,255,255,0.15); color: white; box-sizing: border-box; font-size: 16px; outline: none; }
+        .card { background: var(--glass); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); text-align: center; }
+        input[type="text"], input[type="password"], input[type="file"] { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: none; background: rgba(255,255,255,0.15); color: white; box-sizing: border-box; font-size: 16px; outline: none; }
         button { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 16px; transition: 0.3s; }
-        button:hover { transform: scale(1.02); }
-        .loader { display: none; text-align: center; color: var(--accent); margin: 15px 0; }
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; }
-        .modal-content { background: var(--dark); padding: 30px; border-radius: 20px; border: 2px solid var(--gold); max-width: 400px; text-align: center; }
+        button:hover { transform: scale(1.02); background: #3f44a3; }
+        .loader { display: none; text-align: center; color: var(--accent); margin: 15px 0; font-weight: bold; }
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background: var(--dark); padding: 30px; border-radius: 20px; border: 2px solid var(--gold); max-width: 400px; text-align: center; width: 100%; }
+        #chatBox { height: 200px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; margin-bottom: 10px; text-align: left; font-size: 14px; }
     </style>
 </head>
 <body>
 
 <nav>
-    <a onclick="showSection('home')" id="link-home" class="active">🏠 АСОСИЙ</a>
-    <a onclick="showSection('vault')" id="link-vault">🛡 СЕЙФГА ЮКЛАШ</a>
-    <a onclick="showSection('download')" id="link-download">📥 СЕЙФДАН ОЛИШ</a>
-    <a onclick="showSection('ai')" id="link-ai">🤖 AI ПАНЕЛ</a>
+    <a onclick="showSection('home')" id="link-home" class="active">🏠 Асосий</a>
+    <a onclick="showSection('vault')" id="link-vault">🛡 Сейфга юклаш</a>
+    <a onclick="showSection('download')" id="link-download">📥 Сейфдан олиш</a>
+    <a onclick="showSection('ai')" id="link-ai">🤖 AI Панел</a>
 </nav>
 
 <div id="home" class="section active">
     <div class="card">
         <h1 style="color: var(--gold);">SecretService Premium</h1>
         <p>Муаллиф: <b>Зохиджон Зокиров</b></p>
-        <p>Тизим файлларни хавфсиз шифрлайди. Бот орқали тўлов қилиб, код олишингиз мумкин.</p>
+        <p>Бу тизим файлларни AES-256 стандартида шифрлайди ва базада хавфсиз сақлайди.</p>
+        <p style="font-size: 12px; color: var(--accent);">Firebase & CryptoJS Powered</p>
     </div>
 </div>
 
 <div id="vault" class="section">
-    <h1>🛡 Юклаш</h1>
     <div class="card">
-        <input type="password" id="vaultPass" placeholder="Шифрлаш пароли">
-        <input type="file" id="fileInput" multiple>
-        <button onclick="encryptAndUpload()">Базага юбориш</button>
-        <div id="upLoader" class="loader">Юкланмоқда...</div>
+        <h2>🛡 Сейфга юклаш</h2>
+        <input type="password" id="vaultPass" placeholder="Шифрлаш паролини ўйлаб топинг">
+        <input type="file" id="fileInput">
+        <button onclick="encryptAndUpload()">Шифрлаш ва базага юбориш</button>
+        <div id="upLoader" class="loader">Файл шифрланмоқда ва юкланмоқда...</div>
     </div>
 </div>
 
 <div id="download" class="section">
-    <h1>📥 Файлни олиш</h1>
     <div class="card" style="border: 1px solid var(--gold);">
         <h3>1-Қадам: Тўлов қилиш</h3>
-        <p>Тўлов кодини олиш учун ботга ўтинг:</p>
+        <p>Юклаб олиш учун кодни ботдан олинг:</p>
         <button onclick="openPaymentModal()" style="background: #0088cc;">🤖 Тўлов ботига ўтиш</button>
         
         <hr style="opacity: 0.1; margin: 25px 0;">
         
-        <h3>2-Қадам: Юклаб олиш</h3>
-        <input type="text" id="accessCodeInput" placeholder="Ботдан олинган кодни киритинг">
+        <h3>2-Қадам: Олиш</h3>
+        <input type="text" id="accessCodeInput" placeholder="Ботдан олинган код (11542)">
         <input type="text" id="fileIdInput" placeholder="Файл ID рақами">
         <input type="password" id="decryptPass" placeholder="Файл пароли">
         <button onclick="downloadAndDecrypt()" style="background: #28a745;">Файлни очиш</button>
-        <div id="downLoader" class="loader">Ишланмоқда...</div>
+        <div id="downLoader" class="loader">Файл қидирилмоқда...</div>
     </div>
 </div>
 
 <div id="paymentModal" class="modal">
     <div class="modal-content">
-        <h2 style="color: var(--gold);">Бот орқали тўлов</h2>
-        <p>Ботга ўтиб, тўлов чекини юборинг. Бот сизга автоматик равишда код тақдим этади.</p>
+        <h2 style="color: var(--gold);">Тўлов боти</h2>
+        <p>Ботга ўтиб, тўлов чекини юборинг ва автоматик кодни олинг.</p>
         <button onclick="window.open('https://t.me/Zokhidjon_Pay_bot', '_blank')" style="background: #0088cc;">✈️ Ботни очиш</button>
         <button onclick="closePaymentModal()" style="background: #555; margin-top: 10px;">Ёпиш</button>
     </div>
 </div>
 
 <div id="ai" class="section">
-    <h1>🤖 AI Ассистент</h1>
-    <div class="card"><div id="chatBox"></div><input type="text" id="aiInput" placeholder="Савол ёзинг..."></div>
+    <div class="card">
+        <h1>🤖 AI Ассистент</h1>
+        <div id="chatBox">Тизим тайёр. Савол беришингиз мумкин...</div>
+        <input type="text" id="aiInput" placeholder="Саволингизни ёзинг...">
+        <button onclick="askAI()">Сўраш</button>
+    </div>
 </div>
 
 <script>
+    // Firebase созламалари
     const firebaseConfig = {
         apiKey: "AIzaSyDFkBXMPLV1wCpuO9ITTAkgnJJx_TOE6jo",
         authDomain: "secretservice-d3487.firebaseapp.com",
@@ -96,7 +103,10 @@
         appId: "1:175804281554:web:56ff1755da0defb9ce730b"
     };
 
-    firebase.initializeApp(firebaseConfig);
+    // Firebase-ни ишга тушириш
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
     const database = firebase.database();
 
     const AUTO_CODE = "11542"; 
@@ -113,39 +123,78 @@
 
     async function encryptAndUpload() {
         const pass = document.getElementById('vaultPass').value;
-        const files = document.getElementById('fileInput').files;
-        if(!pass || files.length === 0) return alert("Маълумотни тўлиқ киритинг!");
+        const file = document.getElementById('fileInput').files[0];
+        if(!pass || !file) return alert("Паролни ёзинг ва файлни танланг!");
+
         document.getElementById('upLoader').style.display = "block";
-        for (let file of files) {
-            const reader = new FileReader();
-            reader.onload = async function(e) {
+        const reader = new FileReader();
+        
+        reader.onload = async function(e) {
+            try {
                 const encrypted = CryptoJS.AES.encrypt(e.target.result, pass).toString();
                 const newRef = database.ref('vault_files').push();
-                await newRef.set({ name: file.name, data: encrypted, time: Date.now() });
-                alert(`Файл юкланди! ID: ${newRef.key}`);
+                await newRef.set({
+                    name: file.name,
+                    data: encrypted,
+                    time: firebase.database.ServerValue.TIMESTAMP
+                });
                 document.getElementById('upLoader').style.display = "none";
-            };
-            reader.readAsDataURL(file);
-        }
+                alert(`Муваффақиятли! \n\nФайл ID: ${newRef.key} \n\nБу ID-ни сақлаб қолинг!`);
+            } catch (err) {
+                alert("Хатолик юз берди: " + err.message);
+                document.getElementById('upLoader').style.display = "none";
+            }
+        };
+        reader.readAsDataURL(file);
     }
 
     async function downloadAndDecrypt() {
         const code = document.getElementById('accessCodeInput').value.trim();
         const id = document.getElementById('fileIdInput').value.trim();
         const pass = document.getElementById('decryptPass').value;
+
         if(code !== AUTO_CODE) return alert("Тўлов коди нотўғри!");
+        if(!id || !pass) return alert("ID ва паролни киритинг!");
+
         document.getElementById('downLoader').style.display = "block";
+        
         database.ref('vault_files/' + id).once('value').then(snap => {
             const val = snap.val();
-            if(!val) { document.getElementById('downLoader').style.display = "none"; return alert("Файл топилмади!"); }
+            document.getElementById('downLoader').style.display = "none";
+            
+            if(!val) return alert("Бундай ID билан файл топилмади!");
+
             try {
                 const bytes = CryptoJS.AES.decrypt(val.data, pass);
                 const original = bytes.toString(CryptoJS.enc.Utf8);
+                
+                if(!original) throw new Error("Парол хато");
+
                 const link = document.createElement('a');
-                link.href = original; link.download = val.name; link.click();
-                document.getElementById('downLoader').style.display = "none";
-            } catch(e) { document.getElementById('downLoader').style.display = "none"; alert("Парол хато ёки файл бузилган!"); }
+                link.href = original;
+                link.download = val.name;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch(e) {
+                alert("Парол нотўғри ёки файл шикастланган!");
+            }
+        }).catch(err => {
+            document.getElementById('downLoader').style.display = "none";
+            alert("База билан алоқа йўқ: " + err.message);
         });
+    }
+
+    function askAI() {
+        const input = document.getElementById('aiInput');
+        const chat = document.getElementById('chatBox');
+        if(!input.value) return;
+        chat.innerHTML += `<div><b>Сиз:</b> ${input.value}</div>`;
+        setTimeout(() => {
+            chat.innerHTML += `<div><b>AI:</b> Бу функция ҳозирда созланмоқда...</div>`;
+            chat.scrollTop = chat.scrollHeight;
+        }, 1000);
+        input.value = "";
     }
 </script>
 </body>
