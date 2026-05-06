@@ -2,165 +2,164 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <title>AI Assistant - Хавфсиз Тўлов Тизими</title>
+    <title>AI Assistant - Мукаммал Тизим</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.1.1/docx.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root { --blue: #2196f3; --red: #ff4d4d; --green: #00e676; --bg: #0a0a0a; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; text-align: center; padding: 20px; }
-        .box { background: #161616; padding: 30px; border-radius: 20px; max-width: 500px; margin: auto; border: 1px solid var(--blue); box-shadow: 0 0 20px rgba(33,150,243,0.1); }
-        input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #333; background: #000; color: white; box-sizing: border-box; outline: none; }
-        .btn { width: 100%; padding: 15px; background: var(--blue); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn:disabled { background: #444; cursor: not-allowed; }
-        #log { margin: 15px 0; font-weight: bold; padding: 10px; border-radius: 10px; display: none; }
+        .box { background: #161616; padding: 30px; border-radius: 20px; max-width: 500px; margin: auto; border: 1px solid var(--blue); box-shadow: 0 0 25px rgba(33,150,243,0.15); position: relative; }
+        input, select, textarea { width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; border: 1px solid #333; background: #000; color: white; box-sizing: border-box; outline: none; font-size: 16px; }
+        .btn { width: 100%; padding: 15px; background: var(--blue); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn:hover { opacity: 0.8; }
+        .btn-home { background: #333; color: #fff; text-decoration: none; display: block; padding: 12px; border-radius: 10px; margin-top: 20px; font-size: 14px; border: 1px solid #444; }
+        .btn-home:hover { background: #444; border-color: var(--blue); }
+        #log { margin: 15px 0; font-weight: bold; padding: 12px; border-radius: 10px; display: none; }
         .error-log { background: rgba(255, 77, 77, 0.1); color: var(--red); border: 1px solid var(--red); }
         .success-log { background: rgba(0, 230, 118, 0.1); color: var(--green); border: 1px solid var(--green); }
         .hidden { display: none; }
-        .result-view { text-align: left; background: #000; padding: 15px; border-radius: 10px; margin-top: 20px; border: 1px solid #333; }
+        .result-view { text-align: left; background: #000; padding: 20px; border-radius: 12px; margin-top: 20px; border: 1px solid #333; }
+        .lang-tag { color: var(--blue); font-size: 12px; font-weight: bold; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
     <div class="box">
-        <h2 style="color: var(--blue);">🤖 AI Assistant</h2>
-        <p id="subTitle">Хизматдан фойдаланиш учун маълумотларни киритинг</p>
+        <h2 style="color: var(--blue); margin-bottom: 5px;">🤖 AI Assistant</h2>
+        <p id="statusTitle" style="color: #888; font-size: 14px; margin-bottom: 20px;">Тайёр бўлсангиз, бошлаймиз</p>
 
-        <!-- 1. МАЪЛУМОТ КИРИТИШ -->
-        <div id="dataSection">
-            <select id="mode" onchange="updateUI()">
+        <!-- 1-БОСҚИЧ: МАЪЛУМОТ ЮКЛАШ -->
+        <div id="step1">
+            <select id="mode" onchange="toggleInputs()">
                 <option value="audio">🎙 Аудиони матнга айлантириш</option>
                 <option value="text">📝 Матнни 3 тилга таржима қилиш</option>
             </select>
-            <input type="file" id="audioFile" accept="audio/*">
-            <textarea id="textMsg" class="hidden" placeholder="Таржима учун матнни ёзинг..."></textarea>
-            <button class="btn" onclick="openPayment()">ТЎЛОВГА ЎТИШ</button>
+            <input type="file" id="audioInput" accept="audio/*">
+            <textarea id="textInput" class="hidden" rows="5" placeholder="Таржима қилиш учун матнни киритинг..."></textarea>
+            <button class="btn" onclick="toStep2()">КЕЙИНГИ ҚАДАМ (ТЎЛОВ) →</button>
+            <a href="index.html" class="btn-home">🏠 АСОСИЙ САҲИФАГА ҚАЙТИШ</a>
         </div>
 
-        <!-- 2. БАНК ТЎЛОВИ (ҚАТЪИЙ НАЗОРАТ) -->
-        <div id="paySection" class="hidden">
-            <h3 style="color: #ff9100;">💳 Банк Картаси орқали тўлов</h3>
-            <p style="font-size: 13px; color: #888;">Сумма: 500 000 сўм</p>
-            
-            <input type="text" id="cNum" placeholder="Карта рақами (8600...)" maxlength="19">
-            <input type="text" id="cExp" placeholder="Муддати (ММ/ЙЙ)" maxlength="5">
+        <!-- 2-БОСҚИЧ: БАНК ТЎЛОВИ -->
+        <div id="step2" class="hidden">
+            <h3 style="color: #ff9100;">💳 Тўловни тасдиқланг</h3>
+            <p style="font-size: 14px;">Хизмат нархи: 500 000 сўм</p>
+            <input type="text" id="cardNumber" placeholder="Карта рақами (8600...)" maxlength="19">
+            <input type="text" id="cardDate" placeholder="Муддати (ММ/ЙЙ)" maxlength="5">
             
             <div id="log"></div>
             
-            <button id="mainBtn" class="btn" style="background: var(--green);" onclick="validateAndPay()">✅ ТЎЛОВНИ ТАСДИҚЛАШ</button>
+            <button id="payBtn" class="btn" style="background: var(--green);" onclick="startPaymentProcess()">✅ ТЎЛОВНИ АМАЛГА ОШИРИШ</button>
+            <a href="index.html" class="btn-home">🏠 БЕКОР ҚИЛИШ ВА ЧИҚИШ</a>
         </div>
 
-        <!-- 3. НАТИЖА -->
-        <div id="resSection" class="hidden">
+        <!-- 3-БОСҚИЧ: НАТИЖАЛАР -->
+        <div id="step3" class="hidden">
             <div class="result-view">
-                <b style="color: var(--blue);">🇺🇿 UZ:</b> <div id="uz"></div><br>
-                <b style="color: var(--blue);">🇷🇺 RU:</b> <div id="ru"></div><br>
-                <b style="color: var(--blue);">🇺🇸 EN:</b> <div id="en"></div>
+                <span class="lang-tag">🇺🇿 O'zbekcha:</span> <div id="resUz" style="margin-bottom: 15px;"></div>
+                <span class="lang-tag">🇷🇺 Русский:</span> <div id="resRu" style="margin-bottom: 15px;"></div>
+                <span class="lang-tag">🇺🇸 English:</span> <div id="resEn"></div>
             </div>
-            <button class="btn" style="margin-top:10px; background: #ff9100;" onclick="exportDoc()">💾 WORD (.DOCX)</button>
-            <button class="btn" style="margin-top:10px; background: #e74c3c;" onclick="exportPDF()">📄 PDF</button>
+            
+            <button class="btn" style="background: #ff9100;" onclick="downloadWord()">💾 WORD (.DOCX)</button>
+            <button class="btn" style="background: #e74c3c;" onclick="downloadPDF()">📄 PDF ЮКЛАШ</button>
+            
+            <a href="index.html" class="btn-home">🏠 АСОСИЙ МЕНЮГА ҚАЙТИШ</a>
         </div>
     </div>
 
 <script>
-    let finalContent = { uz: "", ru: "", en: "" };
+    let contentStore = { uz: "", ru: "", en: "" };
 
-    // Карта рақами учун формат (пробеллар билан)
-    document.getElementById('cNum').addEventListener('input', e => {
+    // Карта рақамини форматлаш
+    document.getElementById('cardNumber').addEventListener('input', e => {
         e.target.value = e.target.value.replace(/[^\d]/g, '').replace(/(.{4})/g, '$1 ').trim();
     });
 
-    function updateUI() {
+    function toggleInputs() {
         const mode = document.getElementById('mode').value;
-        document.getElementById('audioFile').classList.toggle('hidden', mode !== 'audio');
-        document.getElementById('textMsg').classList.toggle('hidden', mode !== 'text');
+        document.getElementById('audioInput').classList.toggle('hidden', mode !== 'audio');
+        document.getElementById('textInput').classList.toggle('hidden', mode !== 'text');
     }
 
-    function openPayment() {
-        document.getElementById('dataSection').classList.add('hidden');
-        document.getElementById('paySection').classList.remove('hidden');
-        document.getElementById('subTitle').innerText = "Тўловни амалга оширинг";
+    function toStep2() {
+        document.getElementById('step1').classList.add('hidden');
+        document.getElementById('step2').classList.remove('hidden');
+        document.getElementById('statusTitle').innerText = "Тўлов кутилмоқда";
     }
 
-    // ҚАТЪИЙ ТЎЛОВ ТЕКШИРУВИ
-    function validateAndPay() {
-        const card = document.getElementById('cNum').value.replace(/\s/g, '');
-        const exp = document.getElementById('cExp').value;
+    function startPaymentProcess() {
+        const card = document.getElementById('cardNumber').value.replace(/\s/g, '');
         const log = document.getElementById('log');
-        const btn = document.getElementById('mainBtn');
+        const btn = document.getElementById('payBtn');
 
-        if (card.length < 16 || exp.length < 5) {
-            alert("Карта маълумотлари хато!");
-            return;
-        }
+        if (card.length < 16) { alert("Карта маълумотлари нотўғри!"); return; }
 
         log.style.display = "block";
         log.className = "success-log";
-        log.innerText = "⏳ Банк билан алоқа ўрнатилмоқда...";
+        log.innerText = "⏳ Банк тизими текширилмоқда...";
         btn.disabled = true;
 
-        // РЕАЛ ТЕКШИРУВ СИМУЛЯЦИЯСИ
         setTimeout(() => {
-            log.innerText = "💳 Картадаги маблағ текширилмоқда...";
+            log.innerText = "💳 Маблағ таҳлили кетмоқда...";
             
             setTimeout(() => {
-                // ДИҚҚАТ: Бу ерда биз маблағ йўқлигини СУНЪИЙ равишда текширамиз.
-                // Реал тизимда бу ерда API сўрови бўлади. 
-                // Агар карта рақами 0 билан тугаса - пул бор, 1 билан тугаса - пул йўқ деб белгиладим.
-                const isBalanceEnough = card.endsWith("0"); 
+                // ҚАТЪИЙ ШАРТ: Карта 0 билан тугаса пул бор деб оламиз
+                const hasBalance = card.endsWith("0");
 
-                if (!isBalanceEnough) {
+                if (!hasBalance) {
                     log.className = "error-log";
-                    log.innerText = "❌ ХАТО: Картада маблағ етарли эмас! Тўлов рад этилди.";
+                    log.innerText = "❌ Хато: Картада маблағ етарли эмас!";
                     btn.disabled = false;
                 } else {
                     log.className = "success-log";
-                    log.innerText = "✅ Тўлов муваффақиятли! СИ ишга тушди...";
-                    setTimeout(processAI, 1500);
+                    log.innerText = "✅ Тўлов қабул қилинди! СИ ишга тушди...";
+                    setTimeout(finalizeAI, 2000);
                 }
-            }, 3000);
+            }, 2500);
         }, 1500);
     }
 
-    function processAI() {
+    function finalizeAI() {
         const mode = document.getElementById('mode').value;
-        const input = mode === 'text' ? document.getElementById('textMsg').value : "Аудио ёзув матнга айлантирилди.";
+        const text = mode === 'text' ? document.getElementById('textInput').value : "Аудио файл муваффақиятли таҳлил қилинди.";
 
-        finalContent.uz = input;
-        finalContent.ru = "Перевод: " + input + " (Рус тилида)";
-        finalContent.en = "Translation: " + input + " (Инглиз тилида)";
+        contentStore.uz = text;
+        contentStore.ru = "[Таржима РУ]: " + text + " (перевод)";
+        contentStore.en = "[Translation EN]: " + text + " (translated)";
 
-        document.getElementById('uz').innerText = finalContent.uz;
-        document.getElementById('ru').innerText = finalContent.ru;
-        document.getElementById('en').innerText = finalContent.en;
+        document.getElementById('resUz').innerText = contentStore.uz;
+        document.getElementById('resRu').innerText = contentStore.ru;
+        document.getElementById('resEn').innerText = contentStore.en;
 
-        document.getElementById('paySection').classList.add('hidden');
-        document.getElementById('resSection').classList.remove('hidden');
-        document.getElementById('subTitle').innerText = "Натижа тайёр!";
+        document.getElementById('step2').classList.add('hidden');
+        document.getElementById('step3').classList.remove('hidden');
+        document.getElementById('statusTitle').innerText = "Натижа тайёр";
     }
 
-    function exportDoc() {
+    function downloadWord() {
         const doc = new docx.Document({
             sections: [{
                 children: [
-                    new docx.Paragraph({ children: [new docx.TextRun({ text: "AI Assistant Натижалари", bold: true, size: 28 })] }),
-                    new docx.Paragraph({ text: "\nO'zbekcha: " + finalContent.uz }),
-                    new docx.Paragraph({ text: "\nРусский: " + finalContent.ru }),
-                    new docx.Paragraph({ text: "\nEnglish: " + finalContent.en }),
+                    new docx.Paragraph({ text: "AI Assistant Натижалари", heading: docx.HeadingLevel.HEADING_1 }),
+                    new docx.Paragraph({ text: "\nO'zbekcha:\n" + contentStore.uz }),
+                    new docx.Paragraph({ text: "\nРусский:\n" + contentStore.ru }),
+                    new docx.Paragraph({ text: "\nEnglish:\n" + contentStore.en }),
                 ]
             }]
         });
-        docx.Packer.toBlob(doc).then(blob => saveAs(blob, "Natija.docx"));
+        docx.Packer.toBlob(doc).then(blob => saveAs(blob, "AI_Natija.docx"));
     }
 
-    function exportPDF() {
+    function downloadPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        doc.text("AI Assistant Result", 10, 10);
-        doc.text("UZ: " + finalContent.uz, 10, 20);
-        doc.text("RU: " + finalContent.ru, 10, 40);
-        doc.text("EN: " + finalContent.en, 10, 60);
-        doc.save("Natija.pdf");
+        doc.text("AI Results", 10, 10);
+        doc.text("UZ: " + contentStore.uz.substring(0, 50), 10, 20);
+        doc.text("RU: " + contentStore.ru.substring(0, 50), 10, 40);
+        doc.text("EN: " + contentStore.en.substring(0, 50), 10, 60);
+        doc.save("AI_Natija.pdf");
     }
 </script>
 </body>
