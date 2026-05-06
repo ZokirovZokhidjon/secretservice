@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Service - Профессионал Тўлов Тизими</title>
+    <style>
+        :root { --primary: #00ff88; --glass: rgba(255, 255, 255, 0.1); --error: #ff4d4d; --warning: #ff9100; }
+        body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; 
+               background: radial-gradient(circle at top, #0f172a, #000); font-family: 'Segoe UI', sans-serif; color: white; }
+        
+        .glass-card { background: var(--glass); backdrop-filter: blur(25px); border-radius: 40px; 
+                      border: 1px solid rgba(255,255,255,0.1); padding: 40px; width: 480px; 
+                      text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.7); position: relative; }
+
+        .msg-box { display: none; border-radius: 20px; padding: 15px; margin-bottom: 20px; font-size: 14px; animation: fadeIn 0.5s ease; }
+        .error { background: rgba(255, 77, 77, 0.2); border: 2px solid var(--error); color: #fff; }
+        .success { background: rgba(0, 255, 136, 0.2); border: 2px solid var(--primary); color: #fff; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h2 { color: var(--primary); letter-spacing: 3px; margin-bottom: 30px; text-transform: uppercase; font-size: 28px; }
+        .section { background: rgba(0,0,0,0.5); padding: 30px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.05); }
+        
+        input { width: 100%; padding: 18px; margin: 12px 0; border-radius: 15px; border: 1px solid #333; 
+                background: #000; color: var(--primary); font-size: 18px; box-sizing: border-box; text-align: center; outline: none; transition: 0.3s; }
+        
+        input:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(0,255,136,0.3); }
+        
+        .btn-pay { width: 100%; padding: 18px; border-radius: 15px; border: none; font-weight: bold; 
+                   cursor: pointer; background: linear-gradient(45deg, #00ff88, #00bd68); color: #000; font-size: 16px; transition: 0.3s; }
+        
+        .btn-pay:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,255,136,0.4); }
+        
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 25px; height: 25px; 
+                  animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .footer-link { margin-top: 20px; font-size: 12px; color: #888; cursor: pointer; text-decoration: underline; display: block; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="glass-card">
+        <h2>🔒 SERVICE</h2>
+
+        <div id="msgBox" class="msg-box"></div>
+
+        <div id="paySection" class="section">
+            <p style="margin-bottom: 20px; font-size: 18px;">Тўлов миқдори: <b style="color:var(--primary)">500 000 сўм</b></p>
+            
+            <input type="text" id="cardNum" placeholder="Карта рақами" maxlength="19">
+            <input type="text" id="cardExpiry" placeholder="Муддати (Ой/Йил: 08/29)" maxlength="5">
+
+            <button id="payBtn" class="btn-pay" onclick="validateAndProcess()">💳 ТЎЛОВНИ АМАЛГА ОШИРИШ</button>
+            
+            <a class="footer-link" onclick="recoverPassword()">Паролни қайта юклаш</a>
+        </div>
+
+        <div id="uploadSection" class="section hidden">
+            <p style="color: var(--primary); font-weight: bold; font-size: 20px;">🎉 ТЎЛОВ ҚАБУЛ ҚИЛИНДИ!</p>
+            <input type="file" id="fileInp" multiple style="margin: 15px 0;">
+            <button class="btn-pay" style="background: var(--warning);" onclick="downloadParol()">💾 САҚЛАШ ВА ПАРОЛНИ ОЛИШ</button>
+        </div>
+
+        <div id="status" style="margin-top: 20px; font-size: 14px; color: #00e5ff;"></div>
+    </div>
+
+<script>
+    const currentYear = 26; 
+    const currentMonth = 5;
+
+    // Форматлаш
+    document.getElementById('cardNum').addEventListener('input', e => {
+        e.target.value = e.target.value.replace(/[^\d]/g, '').replace(/(.{4})/g, '$1 ').trim();
+    });
+    document.getElementById('cardExpiry').addEventListener('input', e => {
+        let v = e.target.value.replace(/[^\d]/g, '');
+        if (v.length > 2) v = v.substring(0,2) + '/' + v.substring(2,4);
+        e.target.value = v;
+    });
+
+    function showMsg(text, type) {
+        const box = document.getElementById('msgBox');
+        box.className = `msg-box ${type}`;
+        box.innerHTML = text;
+        box.style.display = "block";
+    }
+
+    function validateAndProcess() {
+        const num = document.getElementById('cardNum').value.replace(/\s/g, '');
+        const exp = document.getElementById('cardExpiry').value;
+        const st = document.getElementById('status');
+        const btn = document.getElementById('payBtn');
+        const msg = document.getElementById('msgBox');
+
+        msg.style.display = "none";
+
+        if (num.length < 16) { alert("Карта рақами хато!"); return; }
+        if (exp.length < 5) { alert("Муддатни киритинг!"); return; }
+
+        // Тўлов жараёнини бошлаш
+        btn.disabled = true;
+        st.innerHTML = '<div class="loader"></div> Банк билан боғланилмоқда...';
+
+        setTimeout(() => {
+            st.innerHTML = '<div class="loader"></div> Маблағ текширилмоқда...';
+            
+            setTimeout(() => {
+                // МАНТИҚ: Агар картада пул бўлмаса (симуляция)
+                // Сизнинг виза картангизда пул йўқлигини кўрсатиш учун доим хато чиқарамиз:
+                const isBalanceEnough = false; // Шу ерни true қилсангиз тўлов ўтади
+
+                if (!isBalanceEnough) {
+                    showMsg("⚠️ <b>ХАТОЛИК:</b> Картангизда маблағ етарли эмас! (Виза/Mastercard)", "error");
+                    st.innerHTML = "";
+                    btn.disabled = false;
+                } else {
+                    showMsg("✅ Тўлов муваффақиятли!", "success");
+                    st.innerHTML = "";
+                    document.getElementById('paySection').classList.add('hidden');
+                    document.getElementById('uploadSection').classList.remove('hidden');
+                }
+            }, 2500);
+        }, 1500);
+    }
+
+    function downloadParol() {
+        const blob = new Blob(["Пароль: 11542"], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = "PAROL.txt";
+        a.click();
+    }
+
+    function recoverPassword() {
+        const code = prompt("Карта охирги 4 та рақами:");
+        if (code) { alert("Пароль: 11542"); downloadParol(); }
+    }
+</script>
+</body>
+</html>

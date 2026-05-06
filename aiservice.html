@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Assistant - Тезкор таржима</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.1.1/docx.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #0a0a0a; color: white; text-align: center; padding: 40px 20px; }
+        .box { background: #161616; padding: 30px; border-radius: 20px; max-width: 450px; margin: auto; border: 1px solid #2196f3; }
+        select, textarea, input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #333; background: #000; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: #2196f3; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        #resBlock { display: none; margin-top: 20px; border-top: 1px dashed #333; padding-top: 20px; }
+        .back { display: block; margin-top: 20px; color: #888; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h2 style="color: #2196f3;">🤖 AI Assistant</h2>
+        
+        <select id="mode" onchange="toggleInput()">
+            <option value="audio">🎙 Аудиони матнга айлантириш</option>
+            <option value="text">📝 Матнни таржима қилиш</option>
+        </select>
+
+        <input type="file" id="audioInp" accept="audio/*">
+        <textarea id="textInp" style="display:none;" placeholder="Матнни киритинг..."></textarea>
+
+        <select id="lang">
+            <option value="uz">🇺🇿 Ўзбек тилига</option>
+            <option value="ru">🇷🇺 Рус тилига</option>
+            <option value="en">🇺🇸 Инглиз тилига</option>
+        </select>
+
+        <button onclick="startAI()">🚀 ИШЛОВ БЕРИШ</button>
+
+        <div id="resBlock">
+            <p style="color: #00e676;">✅ Натижа тайёр!</p>
+            <button style="background: #ff9100;" onclick="payAndDoc()">💳 ТЎЛОВ ВА .DOC ФАЙЛНИ ОЛИШ</button>
+        </div>
+
+        <a href="index.html" class="back">← Орқага қайтиш</a>
+    </div>
+
+<script>
+    let finalOutput = "";
+
+    function toggleInput() {
+        const mode = document.getElementById('mode').value;
+        document.getElementById('audioInp').style.display = mode === 'audio' ? 'block' : 'none';
+        document.getElementById('textInp').style.display = mode === 'text' ? 'block' : 'none';
+    }
+
+    function startAI() {
+        alert("СИ ишга тушди. Илтимос, бир оз кутинг...");
+        setTimeout(() => {
+            finalOutput = "Бу Сизнинг СИ томонидан қайта ишланган матнингиз. Хизматдан фойдаланганингиз учун раҳмат!";
+            document.getElementById('resBlock').style.display = "block";
+            alert("Жараён якунланди!");
+        }, 3000);
+    }
+
+    function payAndDoc() {
+        if(confirm("Тўловни тасдиқлайсизми?")) {
+            const doc = new docx.Document({
+                sections: [{ children: [new docx.Paragraph({ children: [new docx.TextRun(finalOutput)] })] }]
+            });
+            docx.Packer.toBlob(doc).then(blob => {
+                saveAs(blob, "AI_Result.docx");
+            });
+        }
+    }
+</script>
+</body>
+</html>
